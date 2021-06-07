@@ -14,3 +14,7 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 /.idea/.gitignore
+/.idea/go-greenlight.iml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/*

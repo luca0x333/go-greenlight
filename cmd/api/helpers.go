@@ -17,7 +17,7 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 
 	// Use ByName() method to retrieve the value of "id" parameter from the slice.
 	// The value returned by ByName() is a string so we need to convert it to a base 10 integer.
-	id, err := strconv.ParseInt(params.ByName("id"), 64, 10)
+	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
 	if err != nil || id < 1 {
 		return 0, errors.New("invalid id parameter")
 	}

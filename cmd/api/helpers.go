@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+type envelope map[string]interface{}
+
 // readIDParam method retrives the "id" URL parameter from the current context request,
 // then convert it to an interger and return it. If not successful returns an error.
 func (app *application) readIDParam(r *http.Request) (int64, error) {
@@ -26,7 +28,7 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 }
 
 // writeJSON method return a json response.
-func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	// json.Marshal() returns a []byte slice containing the encoded JSON.
 	js, err := json.Marshal(data)
 	if err != nil {

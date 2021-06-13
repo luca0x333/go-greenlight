@@ -9,7 +9,28 @@ import (
 
 // createMovieHandler "POST /v1/movies"
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new movie")
+	// Declare an anonymous struct to hold the information that we expect to be in the
+	// HTTP request body.
+	// Struct fields must be exported so that they are visible to the encoding/json package.
+	// When decoding a JSON object into a struct the key/value pairs in the JSON are mapped to
+	// the struct fields json tags..
+	var input struct {
+		Title   string   `json:"title"`
+		Year    int32    `json:"year"`
+		Runtime int32    `json:"runtime"`
+		Genres  []string `json:"genres"`
+	}
+
+	// Initialize a new json Decoder instance which reads from the request body and then use
+	// the Decoder() method to decode the body contents into the input struct.
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Dump the content of the input struct in a HTTP response.
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // showMovieHandler "GET /v1/movies/:id"

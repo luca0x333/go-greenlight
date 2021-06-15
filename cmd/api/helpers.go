@@ -13,8 +13,8 @@ import (
 
 type envelope map[string]interface{}
 
-// readIDParam method retrives the "id" URL parameter from the current context request,
-// then convert it to an interger and return it. If not successful returns an error.
+// readIDParam method retrieves the "id" URL parameter from the current context request,
+// then convert it to an integer and return it. If not successful returns an error.
 func (app *application) readIDParam(r *http.Request) (int64, error) {
 	// Any interpolated URL parameters will be stored in the request context r.Context().
 	// Use ParamsFromContext() to retrieve a slice containing these parameters.

@@ -25,7 +25,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// the Decoder() method to decode the body contents into the input struct.
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		app.badRequestResponse(w, r, err)
 		return
 	}
 

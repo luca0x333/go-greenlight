@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/luca0x333/go-greenlight/internal/data"
+	"github.com/luca0x333/go-greenlight/internal/validator"
 	"net/http"
 	"time"
 )
@@ -13,7 +14,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// HTTP request body.
 	// Struct fields must be exported so that they are visible to the encoding/json package.
 	// When decoding a JSON object into a struct the key/value pairs in the JSON are mapped to
-	// the struct fields json tags..
+	// the struct fields json tags.
 	var input struct {
 		Title   string       `json:"title"`
 		Year    int32        `json:"year"`
@@ -26,6 +27,22 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	// Initialize a new Validator.
+	v := validator.New()
+
+	// Call the ValidateMovie() function and return a response containing the errors if any of the checks fail.
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 

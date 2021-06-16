@@ -44,7 +44,12 @@ func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
 }
 
-// badRequestResponse method will be used to send a 400 Bad request status code  and JSON response to the client.
+// badRequestResponse method will be used to send a 400 Bad request status code and JSON response to the client.
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+// failedValidationResponse method will be used to send a 422 StatusUnprocessableEntity code to the client.
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
 }

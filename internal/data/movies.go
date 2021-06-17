@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
 	"github.com/luca0x333/go-greenlight/internal/validator"
 	"time"
 )
@@ -39,8 +40,19 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(validator.Unique(movie.Genres), "genres", "must not contain duplicate values")
 }
 
+// Insert method accepts a pointer to a movie struct and insert a new record into the db.
 func (m MovieModel) Insert(movie *Movie) error {
-	return nil
+	query := `
+		INSERT INTO movies (title, year, runtime, genres) VALUES ($1, $2, $3, $4)
+		RETURNING id, created_at, version`
+
+	// Args contains the values for the placeholder parameters from the movie struct.
+	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
+
+	// Use QueryRow() method to execute the query on the connection pool,
+	// passing the args as variadic parameters and scanning the generated id, created_at and version
+	// values into the movie struct.
+	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {

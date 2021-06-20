@@ -90,7 +90,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-//
+// updateMovieHandler "PUT /v1/movies/:id"
 func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract the movie ID from the URL.
 	id, err := app.readIDParam(r)
@@ -146,6 +146,34 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	// Write the updated movie record in a JSON response.
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// deleteMovieHandler "DELETE /v1/movies/:id"
+func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the movie id from the URL.
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+	}
+
+	// Delete the movie from the database or send a 404 Not Found response to the client
+	// if the record does not exist in the database.
+	err = app.models.Movies.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Return 200 OK status code and success message.
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie successfully deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

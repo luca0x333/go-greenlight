@@ -112,11 +112,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Declare an input struct to hold the data.
+	// For Title, Year and Runtime we use a pointer so the zero value is nil and we are able to
+	// pass the validation when sending only a field to update.
+	// Read below for more.
 	var input struct {
-		Title   string       `json:"title"`
-		Year    int32        `json:"year"`
-		Runtime data.Runtime `json:"runtime"`
-		Genres  []string     `json:"genres"`
+		Title   *string       `json:"title"`
+		Year    *int32        `json:"year"`
+		Runtime *data.Runtime `json:"runtime"`
+		Genres  []string      `json:"genres"`
 	}
 
 	// Read the JSON request body data into the input struct.
@@ -125,11 +128,26 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.badRequestResponse(w, r, err)
 	}
 
-	// Copy the values from the request body to the appropriate fields of the movie record.
-	movie.Title = input.Title
-	movie.Year = input.Year
-	movie.Runtime = input.Runtime
-	movie.Genres = input.Genres
+	// If the input.Title value is nil then we know that no corresponding "title" key
+	// value pair was provided in the JSON request body. We leave the record unchanged.
+	// Because input.Title is a now a pointer to a string, we need to dereference the pointer
+	// using the * operator to get the underlying value before assigning it to our movie record.
+	if input.Title != nil {
+		movie.Title = *input.Title
+	}
+
+	if input.Year != nil {
+		movie.Year = *input.Year
+	}
+
+	if input.Runtime != nil {
+		movie.Runtime = *input.Runtime
+	}
+
+	// Slices zero value is nil so no need to use a pointer.
+	if input.Genres != nil {
+		movie.Genres = input.Genres
+	}
 
 	v := validator.New()
 	if data.ValidateMovie(v, movie); !v.Valid() {

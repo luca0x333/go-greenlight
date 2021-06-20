@@ -90,7 +90,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// updateMovieHandler "PUT /v1/movies/:id"
+// updateMovieHandler "PATCH /v1/movies/:id"
 func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract the movie ID from the URL.
 	id, err := app.readIDParam(r)

@@ -4,12 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/luca0x333/go-greenlight/internal/data"
 	"github.com/luca0x333/go-greenlight/internal/jsonlog"
-	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -77,23 +74,10 @@ func main() {
 		models: data.NewModels(db),
 	}
 
-	// Declare a new http server with custom settings.
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.routes(),
-		ErrorLog:     log.New(logger, "", 0),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
+	err = app.serve()
+	if err != nil {
+		logger.PrintFatal(err, nil)
 	}
-
-	// Start the HTTP Server
-	logger.PrintInfo("starting server", map[string]string{
-		"addr": srv.Addr,
-		"env":  cfg.env,
-	})
-	err = srv.ListenAndServe()
-	logger.PrintFatal(err, nil)
 }
 
 // openDB returns a sql.DB connection pool.

@@ -56,14 +56,18 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
+	// Use the background helper to execute an anonymous function that sends the welcome email.
+	app.background(func() {
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		if err != nil {
+			// We use PrintError because by the time we encounter the errors,
+			// the client will probably have already been sent a 202 Accepted response by our writeJSON() helper.
+			app.logger.PrintError(err, nil)
+		}
+	})
 
-	// Write a JSON response with 201 Created status code.
-	err = app.writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
+	// Write a JSON response with 202 StatusAccepted status code.
+	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
